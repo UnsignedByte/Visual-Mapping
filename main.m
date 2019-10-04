@@ -58,7 +58,7 @@ for i = 1:length(ord)
             ind = find(isnan(sum(responses(d,r,:,:),4)),1); %Get first empty pair
             responses(d,r,ind,:) = [x,y];
             while 1 %wait until mouse release
-                [x, y, clicks] = GetMouse(w);
+                [~,~, clicks] = GetMouse(w);
                 if ~clicks(1)
                     break;
                 end
