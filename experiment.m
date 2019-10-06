@@ -21,11 +21,12 @@ function responses = experiment(w, rect, num_d, dists, trials, mask)
     Screen('Flip', w);
     WaitSecs(1);
     
+    mask = imresize(mask, [max(dists)*2,max(dists)*2]);
+    
     maskt = Screen('MakeTexture', w, mask);
-    masksize = [size(mask, 1) size(mask, 2)];
 
     for i = 1:length(ord)
-        Screen('DrawTexture', w, maskt, [], [[cx,cy]-masksize/2 [cx,cy]+masksize/2]);
+        Screen('DrawTexture', w, maskt, [], [[cx,cy]-max(dists) [cx,cy]+max(dists)]);
         Screen('Flip', w);
         WaitSecs(maskms/1000);
         SetMouse(cx, cy, w); %Move mouse to center
@@ -43,7 +44,7 @@ function responses = experiment(w, rect, num_d, dists, trials, mask)
             [x, y, clicks] = GetMouse(w);
             if clicks(1)
                 ind = find(isnan(sum(responses(d,r,:,:),4)),1); %Get first empty pair
-                responses(d,r,ind,:) = [x,y];
+                responses(d,r,ind,:) = [x-cx,y-cy];
                 while 1 %wait until mouse release
                     [~,~, clicks] = GetMouse(w);
                     if ~clicks(1)

@@ -16,58 +16,24 @@ rng('Shuffle'); %Changed to rng('Shuffle') -Norick
 
 Screen('BlendFunction', w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
-window_w = rect(3); % defining size of screen
-window_h = rect(4);
-
-cx = window_w/2;
-cy = window_h/2;
-
 num_d = 8; %number of degrees to split circle where dots can spawn
 dists = [100,200,300,400,500]; % distances where dots can spawn
-num_r = length(dists); %number of distances where dots can spawn
-dotr = 5; %radius in pixels of dot
-
-showms = 10; %Number of ms to show point
-
 trials = 1;% number of times to show each point
-ord = Shuffle(repmat(1:num_r*num_d, trials));
 
-responses = nan(num_d,num_r,trials,2); %response x and y sorted by direction and distance
+g_num = 6; %six periods in gabor patch
+g_con = 1; %contrast of patch
+g_dir = 0; %radians to rotate gabor patch by
+mask = gen_gabor(max(dists), g_num, g_con, g_dir);
 
-SetMouse(cx, cy, w); %Move mouse to center
-Screen('FillRect', w, [128, 128, 128], rect);
-DrawFormattedText(w, '+', 'center', 'center');
-Screen('Flip', w);
-WaitSecs(1);
+resp_before = experiment(w, rect, num_d, dists, trials, mask);
 
-for i = 1:length(ord)
-    SetMouse(cx, cy, w); %Move mouse to center
-    r = ceil(ord(i)/num_d); %get index of distance
-    d = mod(ord(i),num_d)+1; %get index of direction
-    dotpos = floor(dists(r)*[cos(2*pi*d/num_d), sin(2*pi*d/num_d)]); %convert to cartesian
-    Screen('FillRect', w, [128, 128, 128], rect);
-    Screen('FillOval', w, [], [dotpos+[cx,cy]-dotr dotpos+[cx,cy]+dotr]);
-    DrawFormattedText(w, '+', 'center', 'center');
-    Screen('Flip', w);
-    WaitSecs(showms/1000);
-    Screen('Flip', w);
-    
-    while 1 %get mouse click
-        [x, y, clicks] = GetMouse(w);
-        if clicks(1)
-            ind = find(isnan(sum(responses(d,r,:,:),4)),1); %Get first empty pair
-            responses(d,r,ind,:) = [x,y];
-            while 1 %wait until mouse release
-                [~,~, clicks] = GetMouse(w);
-                if ~clicks(1)
-                    break;
-                end
-            end
-            break;
-        end
-    end
-end
+tform = generate_tform(w, resp_before, dists);
+mask = imtransform(mask, tform, 'UData', [-1 1], 'VData', [-1 1], ...
+'XData', [-1 1], 'YData', [-1 1]);
 
-save(fullfile('Participant_Data', nameID, 'responses.mat'), 'responses');
+resp_after = experiment(w, rect, num_d, dists, trials, mask);
+
+imwrite(mask, fullfile('Participant_Data', nameID, 'mask.png'));
+save(fullfile('Participant_Data', nameID, 'responses.mat'), 'resp_before', 'resp_after');
 save(fullfile('Participant_Data', nameID, 'demographics.mat'), 'demographics');
 Screen('CloseAll');
