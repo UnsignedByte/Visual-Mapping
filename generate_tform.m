@@ -1,6 +1,8 @@
 function tform = generate_tform(w, responses, dists)
-    DrawFormattedText(w, 'Generating splines...', 'center', 'center');
-    Screen('Flip', w);
+    if ~isnan(w)
+        DrawFormattedText(w, 'Generating splines...', 'center', 'center');
+        Screen('Flip', w);
+    end
 
     responses = mean(responses, 3); %take mean response point
     [num_d, num_r, ~, ~] = size(responses);
@@ -47,8 +49,10 @@ function tform = generate_tform(w, responses, dists)
         end
     end
 
-    DrawFormattedText(w, 'Generating transform...', 'center', 'center');
-    Screen('Flip', w);
+    if ~isnan(w)
+        DrawFormattedText(w, 'Generating transform...', 'center', 'center');
+        Screen('Flip', w);
+    end
 
     tform = maketform('custom', 2, 2, [], @createtransform, []);
 end
