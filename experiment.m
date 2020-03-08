@@ -6,12 +6,13 @@ function responses = experiment(w, rect, num_d, dists, trials, mask)
     cy = window_h/2;
 
     num_r = length(dists); %number of distances where dots can spawn
-    dotr = 5; %radius in pixels of dot
+    dotr = 10; %radius in pixels of dot
 
-    dotms = 10; %Number of ms to show point
-    maskms = 50; %Number of ms to show gabor patch mask
+    dotms = 20; %Number of ms to show point
+    maskms = 250; %Number of ms to show gabor patch mask
+    waitms = 250; %Nubmer of ms to wait after click before next trial
     
-    ord = Shuffle(repmat(1:num_r*num_d, trials));
+    ord = Shuffle(repmat(1:num_r*num_d, [1, trials]));
 
     responses = nan(num_d,num_r,trials,2); %response x and y sorted by direction and distance
 
@@ -24,12 +25,12 @@ function responses = experiment(w, rect, num_d, dists, trials, mask)
     mask = imresize(mask, [max(dists)*2,max(dists)*2]);
     
     maskt = Screen('MakeTexture', w, mask);
+    SetMouse(cx, cy, w); %Move mouse to center
 
     for i = 1:length(ord)
         Screen('DrawTexture', w, maskt, [], [[cx,cy]-max(dists) [cx,cy]+max(dists)]);
         Screen('Flip', w);
         WaitSecs(maskms/1000);
-        SetMouse(cx, cy, w); %Move mouse to center
         r = ceil(ord(i)/num_d); %get index of distance
         d = mod(ord(i),num_d)+1; %get index of direction
         dotpos = floor(dists(r)*[cos(2*pi*d/num_d), sin(2*pi*d/num_d)]); %convert to cartesian
@@ -54,5 +55,7 @@ function responses = experiment(w, rect, num_d, dists, trials, mask)
                 break;
             end
         end
+        SetMouse(cx, cy, w); %Move mouse to center
+        WaitSecs(waitms/1000);
     end
 end
