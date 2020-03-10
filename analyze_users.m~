@@ -65,18 +65,6 @@ for ii = 1:numel(N)
     saveas(f, fullfile('Participant_Data', name, 'errors.png'));
     
     disp(['User ' name ' analyzed'])
-    [~, p] = ttest(meda-medb);
-    disp(p);
-    [~, p] = ttest(abs(meda-medb));
-    disp(p);
-    errordiffdata = [errordiffdata meda-medb];
+    [h, p] =ttest(meda-medb)
+    errordiffdata = [errordiffdata (meda-medb)'];
 end
-
-% for i = 1:size(errordiffdata, 1)
-%     [~, p] = ttest(errordiffdata(i,:));
-%     disp(p);
-%     [~, p] = ttest(abs(errordiffdata(i,:)));
-%     disp(p);
-% end
-% [~, p] = ttest(errordiffdata);
-% disp(p);
